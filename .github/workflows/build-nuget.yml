@@ -3,7 +3,7 @@ name: Publicar paquete NuGet
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build-and-publish:
