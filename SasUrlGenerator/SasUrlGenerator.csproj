@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- 1) Multi-target contra net5.0, net6.0, net7.0 y net8.0 -->
+		<TargetFrameworks>net5.0;net6.0;net7.0;net8.0</TargetFrameworks>
+
+		<!-- 2) Usar nullables y usings implícitos solo a partir de net6.0 en adelante -->
+		<!-- (Para net5.0 se desactiva más abajo con Condition) -->
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+
+		<!-- 3) Metadatos NuGet -->
+		<Title>Sistecredito-SasUrlGenerator</Title>
+		<Company>Sistecredito</Company>
+		<Authors>Juan Camilo Vanegas</Authors>
+		<Description>Utilidades para generar URL con SAS en Azure Blob Storage</Description>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+
+		<!-- 4) Habilitar C# 10 (o Latest) para todos los targets, 
+           de modo que incluso net5.0 compile con global usings si queremos -->
+		<LangVersion>10.0</LangVersion>
+	</PropertyGroup>
+
+	<!-- 5) Si quieres que en net5.0 NO se usen implicits, agrégalo así: -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net5.0'">
+		<!-- Deshabilitamos los global usings / ImplicitUsings para net5.0 -->
+		<ImplicitUsings>disable</ImplicitUsings>
+	</PropertyGroup>
+
+	<!-- 6) Referencias comunes a todos los frameworks -->
+	<ItemGroup>
+		<PackageReference Include="Azure.Core"        Version="1.46.1" />
+		<PackageReference Include="Azure.Storage.Blobs"  Version="12.24.0" />
+		<PackageReference Include="Azure.Storage.Common" Version="12.23.0" />
+	</ItemGroup>
+
+	<!-- 7) (Opcional) Si necesitas alguna dependencia exclusiva para net8.0, por ejemplo: -->
+	<!--
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="PaqueteSoloParaNet8" Version="X.Y.Z" />
+  </ItemGroup>
+  -->
+
+</Project>
