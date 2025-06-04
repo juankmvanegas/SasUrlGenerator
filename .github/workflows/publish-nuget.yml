@@ -1,0 +1,46 @@
+name: Publicar paquete NuGet
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      # 1) Chequear el código
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2) Setup .NET SDK (por ejemplo, 8.0; modifica según tus needs)
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      # 3) Restore dependencias
+      - name: Restore dependencies
+        run: dotnet restore src/SasUrlGenerator/SasUrlGenerator.csproj
+
+      # 4) Build en modo Release (esto generará el .nupkg si tienes GeneratePackageOnBuild)
+      - name: Build and pack
+        run: |
+          dotnet build src/SasUrlGenerator/SasUrlGenerator.csproj --configuration Release
+          # Si no usas GeneratePackageOnBuild, puedes ejecutar:
+          # dotnet pack src/SasUrlGenerator/SasUrlGenerator.csproj --configuration Release --no-build --output ./nupkgs
+
+      # 5) Publicar en GitHub Packages
+      - name: Publish to GitHub Packages
+        # Con GITHUB_TOKEN ya puedes enviar a GitHub Packages sin credenciales externas
+        run: |
+          # El .nupkg generado estará en bin/Release. Buscamos ese .nupkg
+          nupkg=$(find src/SasUrlGenerator/bin/Release -maxdepth 2 -name '*.nupkg' | head -n 1)
+          echo "Found package: $nupkg"
+          dotnet nuget push "$nupkg" \
+            --api-key "${{ github.token }}" \
+            --source "github"
+        env:
+          # La fuente “github” está preconfigurada cuando usas actions/setup-dotnet@v3
+          # y GITHUB_TOKEN es suficiente para autenticar a GitHub Packages.
+          NUGET_XMLDOC_MODE: skip
